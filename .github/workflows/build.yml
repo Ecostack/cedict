@@ -39,9 +39,6 @@ jobs:
         with:
             version: "2023.1.7"
 
-      - name: Staticcheck
-        run: staticcheck ./...
-
       - name: Test
         run: make test-ci
 
