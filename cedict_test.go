@@ -21,7 +21,10 @@ func TestLoadSave(t *testing.T) {
 
 	// cleanup test data
 	os.RemoveAll(testDir)
-	os.MkdirAll(testDir, 0755)
+	err := os.MkdirAll(testDir, 0755)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// create dict
 	d := New()
@@ -70,8 +73,50 @@ func TestHanzi(t *testing.T) {
 	}
 
 	t.Logf("ByHanzi:   %s\n", e.Marshal())
-	if e.Meanings[0] != "Chinese language" {
+	if e != nil && e.Meanings[0] != "Chinese language" {
 		t.Fail()
+	}
+}
+
+func Test_ConvertSymbols(t *testing.T) {
+	tests := map[string]string{
+		"Hello？":   "Hello?",
+		"中文！":      "中文!",
+		"中文？":      "中文?",
+		"中文？？！。，；": "中文??!.,;",
+		"中文：":      "中文:",
+		"中文。":      "中文.",
+		"中文・":      "中文.",
+		"中文，":      "中文,",
+		"中文；":      "中文;",
+		"中文（":      "中文(",
+		"中文）":      "中文)",
+		"中文【":      "中文[",
+		"中文】":      "中文]",
+		"中文abc":    "中文abc",
+	}
+	for s, want := range tests {
+		if got := ConvertSymbols(s); got != want {
+			t.Errorf("ConvertSymbols(%q) got %v, want %v", s, got, want)
+		}
+	}
+}
+
+func Test_IsHanzi(t *testing.T) {
+	tests := map[string]bool{
+		"":        false,
+		"  ":      false,
+		"abc":     false,
+		"中":       true,
+		"中文":      true,
+		"中文老師":    true,
+		"abc中文":   false,
+		"abc中文老師": false,
+	}
+	for s, want := range tests {
+		if got := IsHanzi(s); got != want {
+			t.Errorf("IsHanzi(%q) got %v, want %v", s, got, want)
+		}
 	}
 }
 

@@ -349,7 +349,7 @@ func (d *Dict) GetByPinyin(s string) []*Entry {
 
 	// convert tones to tone numbers
 	s = PinyinToneNums(s)
-	isPlaintext := strings.IndexAny(s, toneNums) < 0
+	isPlaintext := !strings.ContainsAny(s, toneNums)
 
 	// normalise pinyin to lowercase, no spaces
 	s = strings.ToLower(s)
@@ -570,7 +570,10 @@ func (e *Entry) Unmarshal(s string) error {
 // IsHanzi returns true if the string contains only han characters.
 // http://www.unicode.org/reports/tr38/tr38-27.html HAN Unification
 func IsHanzi(s string) bool {
-	for _, r := range []rune(s) {
+	if len(s) == 0 {
+		return false
+	}
+	for _, r := range s {
 		_, isSymbol := symbols[r]
 		if !unicode.Is(unicode.Han, r) && !isSymbol {
 			return false
@@ -596,7 +599,7 @@ func StripTones(s string) string {
 // ConvertSymbols replaces common hanzi symbols with latin symbols.
 func ConvertSymbols(s string) string {
 	result := ""
-	for _, r := range []rune(s) {
+	for _, r := range s {
 		if sym, ok := symbols[r]; ok {
 			result += sym
 		} else {
