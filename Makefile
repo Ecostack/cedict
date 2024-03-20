@@ -40,6 +40,9 @@ lint: $(GOLINT)
 test:
 	$(GO) test -race -v -covermode atomic -coverprofile=profile.cov ./...
 
+test-ci:
+	$(GO) test -race -v ./...
+
 clean:
 	rm -f $(CMD)
 	rm -rf ./testdata
